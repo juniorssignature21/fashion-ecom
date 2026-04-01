@@ -1,0 +1,380 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block title %}
+Product Details
+{% endblock title %}
+{% block content %}
+<style>
+    /* Container styling */
+.qty-container {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+    margin-bottom: 10px;
+}
+
+/* Individual buttons */
+.qty-btn {
+    background: #f8f9fa;
+    border: none;
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #333;
+    transition: background 0.2s;
+}
+
+.qty-btn:hover {
+    background: #e9ecef;
+}
+
+.qty-btn:active {
+    background: #dee2e6;
+}
+
+/* The input field */
+.qty-input {
+    width: 45px;
+    height: 35px;
+    text-align: center;
+    border: none;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    font-weight: bold;
+    -moz-appearance: textfield; /* Remove Firefox spinner */
+}
+
+/* Remove Chrome/Safari/Edge spinner */
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+</style>
+<!-- Shop Details Section Begin -->
+<section class="shop-details">
+    <div class="product__details__pic">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="product__details__breadcrumb">
+                        <a href="{% url "store:home" %}">Home</a>
+                        <a href="{% url "store:shop" %}">Shop</a>
+                        <span>Product Details</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-md-3">
+                    <ul class="nav nav-tabs" role="tablist">
+                        {% for image in product.product_images %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if image.image.url == product.image %}active{% endif %}" data-toggle="tab" href="#tabs-{{image.id}}" role="tab">
+                                <div class="product__thumb__pic set-bg" data-setbg="{{ image.image.url }}">
+                                </div>
+                            </a>
+                        </li>
+                        {% endfor %}
+                        
+                    </ul>
+                </div>
+                <div class="col-lg-6 col-md-9">
+                    <div class="tab-content">
+                        
+                        {% for image in product.product_images %}
+                        <div class="tab-pane {% if image.image.url == product.image %}active{% endif %}" id="tabs-{{image.id}}" role="tabpane{{image.id}}">
+                            <div class="product__details__pic__item">
+                                <img src="{{ image.image.url }}" alt="">
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="product__details__content">
+        <div class="container">
+            <div class="row d-flex justify-content-center">
+                <div class="col-lg-8">
+                    <div class="product__details__text">
+                        <h4>
+                            {{ product.name }}
+                        </h4>
+                        <div class="rating">
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star-o"></i>
+                            <span> - 5 Reviews</span>
+                        </div>
+                        {% if product.sale_price %}
+                        <h3>
+                            &#8358;{{ product.sale_price }}
+                            <span>
+                                {{ product.price }}
+                            </span>
+                        </h3>
+                        {% else %}
+                        <h3>
+                            &#8358; {{ product.price }}
+                        </h3>
+                        {% endif %}
+                        <p>
+                            {{ product.description|linebreaks }}
+                        </p>
+                        {% if variants %}
+                        <div class="product__details__option">
+                            {% for variant in variants %}
+                            <div class="product__details__option__{{variant.name.lower}}">
+                                <span>{{ variant.name }}:</span>
+                                {% if variant.name.lower == "color" %}
+                                {% for item in variant.items %}
+                                <label for="sp-{{ item.id }}" style="background: {{ item.name.lower }};">
+                                    <input type="radio" id="sp-{{ item.id }}" name="color" value="{{ item.name }}">
+                                </label>
+                                {% endfor %}
+                                {% elif variant.name.lower == "size" %}
+                                {% for item in variant.items %}
+                                <label for="{{ item.name }}">{{ item.name }}
+                                    <input type="radio" id="{{ item.name }}" name="size" value="{{ item.name }}">
+                                </label>
+                                {% endfor %}
+                                {% endif %}
+                                
+                            </div>
+                            {% endfor %}
+                           
+
+                        </div>
+                        {% endif %}
+
+                        {% comment %} <div class="product__details__cart__option">
+                            <div class="quantity">
+                                <div class="pro-qty">
+                                    <input type="number" value="1" min="1" class="quantity" name="qty">
+                                </div>
+                            </div>
+                            <button class="primary-btn add-to-cart-btn" data-id="{{ product.id }}">add to cart</button>
+                        </div> {% endcomment %}
+
+                        <div class="product-selection-area">
+                        <!-- Quantity Selector -->
+                            <div class="qty-container">
+                                <button type="button" class="qty-btn minus">-</button>
+                                
+                                <input type="number" 
+                                    value="1" 
+                                    min="1" 
+                                    class="qty-input" 
+                                    name="qty" 
+                                    style="width: 50px; text-align: center;" 
+                                    readonly>
+                                    
+                                <button type="button" class="qty-btn plus">+</button>
+                            </div>
+
+                            <!-- Your existing Add to Cart button -->
+                            <button style="border: none; background: orange; height: 35px; border-radius: 5px;" class="add-to-cart-btn" data-id="{{ product.id }}">
+                                Add to Cart
+                            </button>
+                    </div>
+
+                        <div class="product__details__btns__option">
+                            <a href="#"><i class="fa fa-heart"></i> add to wishlist</a>
+                            <a href="#"><i class="fa fa-exchange"></i> Add To Compare</a>
+                        </div>
+                        <div class="product__details__last__option">
+                            <h5><span>Guaranteed Safe Checkout</span></h5>
+                            <img src="{% static 'img/shop-details/details-payment.png' %}" alt="">
+                            <ul>
+                                <li><span>SKU:</span> {{ product.sku }}</li>
+                                <li><span>Categories:</span> {{ product.category.name }}</li>
+                                <li><span>Tag:</span> 
+                                {% for tag in product.prod_tags %}
+                                {{ tag }},
+                                {% endfor %}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="product__details__tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-toggle="tab" href="#tabs-5"
+                                role="tab">Description</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#tabs-6" role="tab">Customer
+                                Reviews(5)</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#tabs-7" role="tab">Additional
+                                information</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+
+                            {% comment %} Start Description {% endcomment %}
+                            <div class="tab-pane active" id="tabs-5" role="tabpanel">
+                                <div class="product__details__tab__content">
+                                    <div class="product__details__tab__content__item">
+                                        <h5>Products Infomation</h5>
+                                        <p>
+                                            {{product.description}}
+                                        </p>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            {% comment %} End description {% endcomment %}
+
+                            {% comment %} Customer Review {% endcomment %}
+                            <div class="tab-pane" id="tabs-6" role="tabpanel">
+                                <div class="product__details__tab__content">
+                                    <div class="product__details__tab__content__item">
+                                        <h5>Products Infomation</h5>
+                                        <p>A Pocket PC is a handheld computer, which features many of the same
+                                            capabilities as a modern PC. These handy little devices allow
+                                            individuals to retrieve and store e-mail messages, create a contact
+                                            file, coordinate appointments, surf the internet, exchange text messages
+                                            and more. Every product that is labeled as a Pocket PC must be
+                                            accompanied with specific software to operate the unit and must feature
+                                        a touchscreen and touchpad.</p>
+                                        <p>As is the case with any new technology product, the cost of a Pocket PC
+                                            was substantial during it’s early release. For approximately &#8358;700.00,
+                                            consumers could purchase one of top-of-the-line Pocket PCs in 2003.
+                                            These days, customers are finding that prices have become much more
+                                            reasonable now that the newness is wearing off. For approximately
+                                        &#8358;350.00, a new Pocket PC can now be purchased.</p>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            {% comment %} End Customer Review {% endcomment %}
+
+                            {% comment %} start additional information {% endcomment %}
+                            <div class="tab-pane" id="tabs-7" role="tabpanel">
+                                <div class="product__details__tab__content">
+                                    <p class="note">Nam tempus turpis at metus scelerisque placerat nulla deumantos
+                                        solicitud felis. Pellentesque diam dolor, elementum etos lobortis des mollis
+                                        ut risus. Sedcus faucibus an sullamcorper mattis drostique des commodo
+                                    pharetras loremos.</p>
+                                    <div class="product__details__tab__content__item">
+                                        <h5>Products Infomation</h5>
+                                        <p>A Pocket PC is a handheld computer, which features many of the same
+                                            capabilities as a modern PC. These handy little devices allow
+                                            individuals to retrieve and store e-mail messages, create a contact
+                                            file, coordinate appointments, surf the internet, exchange text messages
+                                            and more. Every product that is labeled as a Pocket PC must be
+                                            accompanied with specific software to operate the unit and must feature
+                                        a touchscreen and touchpad.</p>
+                                        <p>As is the case with any new technology product, the cost of a Pocket PC
+                                            was substantial during it’s early release. For approximately &#8358;700.00,
+                                            consumers could purchase one of top-of-the-line Pocket PCs in 2003.
+                                            These days, customers are finding that prices have become much more
+                                            reasonable now that the newness is wearing off. For approximately
+                                        &#8358;350.00, a new Pocket PC can now be purchased.</p>
+                                    </div>
+                                    <div class="product__details__tab__content__item">
+                                        <h5>Material used</h5>
+                                        <p>Polyester is deemed lower quality due to its none natural quality’s. Made
+                                            from synthetic materials, not natural like wool. Polyester suits become
+                                            creased easily and are known for not being breathable. Polyester suits
+                                            tend to have a shine to them compared to wool and cotton suits, this can
+                                            make the suit look cheap. The texture of velvet is luxurious and
+                                            breathable. Velvet is a great choice for dinner party jacket and can be
+                                        worn all year round.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% comment %} end additional information {% endcomment %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Shop Details Section End -->
+
+<!-- Related Section Begin -->
+<section class="related spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h3 class="related-title">Related Product</h3>
+            </div>
+        </div>
+        <div class="row">
+            {% for product in related_products %}
+            <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
+                <div class="product__item">
+                    <div class="product__item__pic set-bg {% if product.is_sale %}sale{% endif %}" data-setbg="{{ product.image }}">
+                        {% if product.is_sale %}
+                        <span class="label">Sale</span>
+                        {% endif %}
+                        <ul class="product__hover">
+                            <li><a href="#"><img src="{% static 'img/icon/heart.png' %}" alt=""></a></li>
+                            <li><a href="#"><img src="{% static 'img/icon/compare.png' %}" alt=""> <span>Compare</span></a></li>
+                            <li><a href="#"><img src="{% static 'img/icon/search.png' %}" alt=""></a></li>
+                        </ul>
+                    </div>
+                    <div class="product__item__text">
+                        <h6>
+                            {{ product.name }}
+                        </h6>
+                        <a href="#" class="add-cart">+ Add To Cart</a>
+                        <div class="rating">
+                            <i class="fa fa-star-o"></i>
+                            <i class="fa fa-star-o"></i>
+                            <i class="fa fa-star-o"></i>
+                            <i class="fa fa-star-o"></i>
+                            <i class="fa fa-star-o"></i>
+                        </div>
+                        
+                        <h5>
+                            {% if product.sale_price %}
+                            <span style="color:grey; text-decoration: line-through;">
+                                &#8358;{{ product.sale_price }}
+                            </span>
+                            {% endif %}
+                            &#8358;{{ product.price }}
+                        </h5>
+                        <div class="product__color__select">
+                            <label for="pc-1">
+                                <input type="radio" id="pc-1">
+                            </label>
+                            <label class="active black" for="pc-2">
+                                <input type="radio" id="pc-2">
+                            </label>
+                            <label class="grey" for="pc-3">
+                                <input type="radio" id="pc-3">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+        </div>
+    </div>
+</section>
+<!-- Related Section End -->
+{% endblock content %}
+<script type="module" src="{% static "js/add_to_cart.js" %}"></script>
