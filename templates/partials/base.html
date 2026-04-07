@@ -32,6 +32,62 @@
 </head>
 
 <body>
+    <style>
+    /* Container styling */
+.qty-container {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+    margin-bottom: 10px;
+}
+
+/* Individual buttons */
+.qty-btn {
+    background: #f8f9fa;
+    border: none;
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #333;
+    transition: background 0.2s;
+}
+
+.qty-btn:hover {
+    background: #e9ecef;
+}
+
+.qty-btn:active {
+    background: #dee2e6;
+}
+
+/* The input field */
+.qty-input {
+    width: 45px;
+    height: 35px;
+    text-align: center;
+    border: none;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    font-weight: bold;
+    -moz-appearance: textfield; /* Remove Firefox spinner */
+}
+
+/* Remove Chrome/Safari/Edge spinner */
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+</style>
+
     <!-- Page Preloder -->
     <div id="preloder">
         <div class="loader"></div>
@@ -42,7 +98,11 @@
     <div class="offcanvas-menu-wrapper">
         <div class="offcanvas__option">
             <div class="offcanvas__links">
-                <a href="#">Sign in</a>
+                {% if request.user.is_authenticated %}
+                    <a href="{% url "accounts:logout" %}">Sign out</a>
+                {% else %}
+                    <a href="{% url "accounts:login" %}">Sign in</a>
+                {% endif %}
                 <a href="#">FAQs</a>
             </div>
             <div class="offcanvas__top__hover">
@@ -57,8 +117,12 @@
         <div class="offcanvas__nav__option">
             <a href="#" class="search-switch"><img src="{% static 'img/icon/search.png' %}" alt=""></a>
             <a href="#"><img src="{% static 'img/icon/heart.png' %}" alt=""></a>
-            <a href="#"><img src="{% static 'img/icon/cart.png' %}" alt=""> <span>0</span></a>
-            <div class="price">$0.00</div>
+            <a href="{% url "store:cart" %}"><img src="{% static 'img/icon/cart.png' %}" alt=""> <span class="total_cart_items">
+                {{ total_cart_items }}
+            </span></a>
+            <div class="price">
+                
+            </div>
         </div>
         <div id="mobile-menu-wrap"></div>
         <div class="offcanvas__text">

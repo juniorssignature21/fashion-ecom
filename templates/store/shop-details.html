@@ -4,61 +4,7 @@
 Product Details
 {% endblock title %}
 {% block content %}
-<style>
-    /* Container styling */
-.qty-container {
-    display: inline-flex;
-    align-items: center;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    overflow: hidden;
-    background: #fff;
-    margin-bottom: 10px;
-}
 
-/* Individual buttons */
-.qty-btn {
-    background: #f8f9fa;
-    border: none;
-    cursor: pointer;
-    width: 35px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    color: #333;
-    transition: background 0.2s;
-}
-
-.qty-btn:hover {
-    background: #e9ecef;
-}
-
-.qty-btn:active {
-    background: #dee2e6;
-}
-
-/* The input field */
-.qty-input {
-    width: 45px;
-    height: 35px;
-    text-align: center;
-    border: none;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-    font-weight: bold;
-    -moz-appearance: textfield; /* Remove Firefox spinner */
-}
-
-/* Remove Chrome/Safari/Edge spinner */
-.qty-input::-webkit-outer-spin-button,
-.qty-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-</style>
 <!-- Shop Details Section Begin -->
 <section class="shop-details">
     <div class="product__details__pic">

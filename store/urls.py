@@ -11,6 +11,7 @@ urlpatterns = [
     # ================ cart urls
     path('add-to-cart/', store_views.AddToCart, name="add-to-cart"),
     path('cart/', store_views.cart, name="cart"),
+    path('delete-cart-item/', store_views.delete_cart_item, name="delete-cart-item"),
     path('get-cart-count/', store_views.get_cart_count, name='get_cart_count'),
 
 ]

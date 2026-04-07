@@ -2,8 +2,45 @@ from django.db import models
 from shortuuid.django_fields import ShortUUIDField
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 import shortuuid
+
+PAYMENT_STATUS = (
+    ("Paid","Paid"),
+    ("Processing","Processing"),
+    ("Failed","Failed"),
+)
+
+PAYMENT_METHOD = (
+    ("Paypal","Paypal"),
+    ("Stripe","Stripe"),
+    ("Flutterwave","Flutterwave"),
+    ("Paystack","Paystack"),
+    ("RazorPay","RazorPay"),
+)
+
+ORDER_STATUS = (
+    ("Pending","Pending"),
+    ("Processing","Processing"),
+    ("Shipped","Shipped"),
+    ("Fufilled","Fufilled"),
+    ("Cancelled","Cancelled"),
+)
+
+SHIPPING_SERVICE = (
+    ("DHL","DHL"),
+    ("FedX","FedX"),
+    ("GIG Logistics","GIG Logistics"),
+)
+
+RATING = (
+    (1, "⭐"),
+    (2, "⭐⭐"),
+    (3, "⭐⭐⭐"),
+    (4, "⭐⭐⭐⭐"),
+    (5, "⭐⭐⭐⭐⭐"),
+)
 
 User = get_user_model()
 # Create your models here.
@@ -89,6 +126,14 @@ class Tag(models.Model):
     def __str__(self):
         return self.title
 
+class Coupon(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    code = models.CharField(max_length=100)
+    discount = models.IntegerField(default=1)
+    
+    def __str__(self):
+        return self.code
+    # print(f"my name is {name}")
     
 class Cart(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -118,3 +163,83 @@ class Address(models.Model):
     
     def __str__(self):
         return f"{self.address_line1}, {self.city}, {self.state}, {self.country}"
+    
+    class Meta:
+        verbose_name_plural = "Addresses"
+        
+class Order(models.Model):
+    vendors = models.ManyToManyField(User, null=True, blank=True)
+    customer = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='customer', blank=True, null=True)
+    sub_total = models.DecimalField(default=0.00, max_digits=12, decimal_places=2)
+    shipping = models.DecimalField(default=0.00, max_digits=12, decimal_places=2)
+    tax = models.DecimalField(default=0.00, max_digits=12, decimal_places=2)
+    service_fee = models.DecimalField(default=0.00, max_digits=12, decimal_places=2)
+    total = models.DecimalField(default=0.00, max_digits=12, decimal_places=2)
+    payment_status = models.CharField(max_length=100, choices=PAYMENT_STATUS, default="Processing")
+    payment_method = models.CharField(max_length=100, choices=PAYMENT_METHOD, default=None, null=True, blank=True)
+    order_status = models.CharField(max_length=100, choices=ORDER_STATUS, default="pending")
+    initial_total = models.DecimalField(default=0.00, max_digits=12, decimal_places=2, null=True, blank=True, help_text="The original total before")
+    saved = models.DecimalField(default=0.00, max_digits=12, decimal_places=2, null=True,blank=True, help_text='Amount')
+    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True)
+    coupon = models.ManyToManyField('Coupon', blank=True, null=True)
+    order_id = ShortUUIDField(length=6, max_length=25, alphabet='1234567890')
+    payment_id = models.CharField(max_length=1000, null=True, blank=True)
+    date = models.DateTimeField(default=timezone.now)
+    
+    class Meta:
+        verbose_name_plural = "Order"
+        ordering = ['-date']
+        
+    def __str__(self):
+        return f"Order {self.order_id} by {self.customer.username if self.customer else 'Unknown'}"
+    
+    def order_items(self):
+        return OrderItem.objects.filter(order=self)
+    
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order_status = models.CharField(max_length=100, choices=ORDER_STATUS, default='Pending')
+    shipping_services = models.CharField(max_length=100, choices=SHIPPING_SERVICE, default=None, null=True, blank=True)
+    tracking_id = models.CharField(max_length=100, default=None, null=True, blank=True)
+    
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    qty = models.IntegerField(default=0)
+    color = models.CharField(max_length=100, null=True, blank=True)
+    size = models.CharField(max_length=100, null=True, blank=True)
+    price = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    sub_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    shipping = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    tax = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    total = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    initial_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, help_text="Grand Total of all amount")
+    saved = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, null=True, blank=True, help_text="Amount ")
+    # address = models.ForeignKey("customer.Address", on_delete=models.SET_NULL, null=True)
+    coupons = models.ManyToManyField(Coupon, blank=True)
+    applied_coupon = models.BooleanField(default=False)
+    item_id = ShortUUIDField(length=6, max_length=25, alphabet='1234567890')
+    vendor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='vendor_order_items')
+    date = models.DateTimeField(default=timezone.now)
+    
+    def order_id(self):
+        
+        return f"{self.order.order_id}"
+    
+    def __str__(self):
+        return self.item_id
+    
+    class Meta:
+        ordering = ["-date"]
+        
+
+class Review(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, blank=True, null=True, related_name='reviews')
+    review = models.TextField(null=True, blank=True)
+    reply = models.TextField(null=True, blank=True)
+    rating = models.IntegerField(choices=RATING, default=None)
+    active = models.BooleanField(default=False)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user.username} review on {self.product.name}'
+    

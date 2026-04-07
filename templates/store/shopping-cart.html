@@ -1,6 +1,26 @@
 {% extends "partials/base.html" %}
 {% load static %}
 {% block content %}
+<style>
+    .address{
+        width: 350px;
+        background: #000;
+        color: #fff;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+    }
+    .address button{
+        background: #e53637;
+        color: #fff;
+        border: none;
+        border-radius: 2px;
+        padding: 5px;
+    }
+    .active{
+        border: 4px solid red;
+    }
+</style>
 <!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-option">
     <div class="container">
@@ -26,15 +46,16 @@
         <div class="row">
             <div class="col-lg-8">
                 <div class="shopping__cart__table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>Quantity</th>
-                                <th>Total</th>
-                                <th></th>
-                            </tr>
-                        </thead>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
                         <tbody>
                             {% for item in items %}
                             <tr>
@@ -43,7 +64,7 @@
                                         <img src="img/shopping-cart/cart-1.jpg" alt="">
                                     </div>
                                     <div class="product__cart__item__text">
-                                        <h6>T-shirt Contrast Pocket</h6>
+                                        <h6>{{ item.product.name }}</h6>
                                         <h5>
                                             &#8358; {{ item.price }}
                                         </h5>
@@ -56,34 +77,40 @@
                                 
                                 <input type="number" 
                                     value="{{ item.qty }}" 
-                                    min="1" 
-                                    class="qty-input" 
+                                    min="1"
+                                    max="{{ item.product.stock }}"
+                                    class="qty-input item-qty-{{ item.id }}" 
                                     name="qty" 
-                                    style="width: 50px; text-align: center;" 
+                                    style="width: 50px; text-align: center;"
+                                    data-qty="{{ item.product.stock }}"
                                     readonly>
                                     
                                 <button type="button" class="qty-btn plus">+</button>
                             </div>
                                 </td>
                                 <td class="cart__price">&#8358; {{ item.sub_total }}</td>
-                                <td class="cart__close"><i class="fa fa-close"></i></td>
+                                <td class="cart__actions">
+                                    <span class="cart__close update_cart_qty" data-item-id="{{ item.id }}" data-product-id="{{ item.product.id }}" title="Update quantity">
+                                        <i class="fa fa-edit"></i>
+                                    </span>
+                                    <span class="cart__close delete_cart_item" data-item-id="{{ item.id }}" data-product-id="{{ item.product.id }}" title="Remove item">
+                                        <i class="fa fa-close"></i>
+                                    </span>
+                                </td>
                             </tr>
                             {% endfor %}
                             
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6">
                         <div class="continue__btn">
-                            <a href="#">Continue Shopping</a>
+                            <a href="{% url "store:shop" %}">Continue Shopping</a>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6">
-                        <div class="continue__btn update__btn">
-                            <a href="#"><i class="fa fa-spinner"></i> Update cart</a>
-                        </div>
-                    </div>
+
                 </div>
             </div>
             <div class="col-lg-4">
@@ -104,8 +131,31 @@
                 </div>
             </div>
         </div>
+        <h5>
+            &nbsp;&nbsp; Address:
+        </h5>
+        <br>
+        
+        {% for address in addresses %}
+        <div class="address">
+            <input type="radio"  name="address"
+            hidden
+            class="address-input" value="{{address.id}}">
+            
+            <span>
+            {{ address.address_line1 }}, {{ address.city }}, {{ address.state }}, {{ address.postal_code }}, {{ address.country }}  
+            </span>
+            <button class="address-btn" address-id="{{ address.id }}">
+                Use
+            </button>
+        </div>
+        <br><br>
+        {% endfor %}
     </div>
 </section>
+<script>
+    document.getEl
+</script>
 <!-- Shopping Cart Section End -->
 {% endblock content %}
 

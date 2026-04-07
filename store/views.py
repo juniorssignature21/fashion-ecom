@@ -5,21 +5,29 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from store import models as store_models
 from django.db.models import Q, Sum
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 import random
 # Create your views here.
-# views.py
 from django.http import JsonResponse
+
 from .models import Cart # Assuming your model name
+
+from plugins.tax_calculator import tax_calculation
+from plugins.service_fee import calculate_service_fee
 
 def get_cart_count(request):
     cart_id = request.GET.get('cart_id')
     count = 0
     if cart_id:
+        items = store_models.Cart.objects.filter(Q(cart_id=cart_id) | Q(user=request.user) if request.user.is_authenticated else  Q(cart_id=cart_id))
+        
         total_cart_items = store_models.Cart.objects.filter(Q(cart_id=cart_id) | Q(user=request.user)).count()
         cart_sub_total = store_models.Cart.objects.filter(Q(cart_id=cart_id) | Q(user=request.user) if request.user.is_authenticated else  Q(cart_id=cart_id)).aggregate(sub_total = Sum("sub_total"))["sub_total"]
         
-    return JsonResponse({'total_cart_items': total_cart_items, 'cart_sub_total': f"{cart_sub_total:,.2f}"})
+        
+    return JsonResponse({'total_cart_items': total_cart_items, 'cart_sub_total': f"{cart_sub_total:,.2f}", 'total_price': f"{cart_sub_total:,.2f}"})
 
 def HomeView(request):
     categories = store_models.Category.objects.all()[:4]
@@ -125,7 +133,8 @@ def AddToCart(request):
             "message": message,
             "total_cart_items": total_cart_items,
             "cart_sub_total": "{:,.2f}".format(cart_sub_total),
-            "item_sub_total":"{:,.2f}".format(existing_cart_items.sub_total if existing_cart_items else "{:,.2f}".format(cart.sub_total)),
+            
+            "item_sub_total":"{:,.2f}".format(existing_cart_items.sub_total) if existing_cart_items else "{:,.2f}".format(cart.sub_total),
         })
     
 def cart(request):
@@ -162,7 +171,7 @@ def delete_cart_item(request):
         return JsonResponse({"error": "Item or product not found"}, status=400)
     
     try:
-        product  = store_models.Product.objects.get(status="Published", id=id)
+        product  = store_models.Product.objects.get(id=id)
     except store_models.Product.DoesNotExist:
         return JsonResponse({"error": "Product not found"}, status=404)
     
@@ -177,3 +186,52 @@ def delete_cart_item(request):
         "total_cart_items":total_cart_items.count(),
         "cart_sub_total":"{:,.2f}".format(cart_sub_total) if cart_sub_total else 0.00
     })
+
+@login_required(login_url='accounts:login')
+def CreateOrder(request):
+    if request.method == "POST":
+        address_id = request.POST.get("address")
+        
+        if not address_id:
+            messages.warning(request, "Please select a delivery address")
+            return redirect("store:cart")
+        
+        address = store_models.Address.objects.get(id=address_id)
+        
+        if "cart_id" in request.session:
+            cart_id = request.session["cart_id"]
+        else:
+            cart_id = None
+        
+        items_cart = store_models.Cart.objects.filter(Q(cart_id=cart_id) | Q(user=request.user) if request.user.is_authenticated else  Q(cart_id=cart_id))
+        
+        cart_sub_total = store_models.Cart.objects.filter(Q(cart_id=cart_id) | Q(user=request.user) if request.user.is_authenticated else  Q(cart_id=cart_id)).aggregate(sub_total = Sum("sub_total"))["sub_total"]
+        
+        cart_shipping_total = store_models.Cart.objects.filter(Q(cart_id=cart_id) | Q(user=request.user) if request.user.is_authenticated else  Q(cart_id=cart_id)).aggregate(shipping = Sum("shipping"))["shipping"]
+        
+        order = store_models.Order()
+        
+        order.customer = request.user if request.user.is_authenticated else None
+        order.sub_total = cart_sub_total
+        order.shipping = cart_shipping_total
+        order.address = address
+        order.tax = tax_calculation(address.country, cart_sub_total)
+        order.total = order.sub_total + order.shipping + Decimal(order.tax)
+        order.service_fee = calculate_service_fee(order.total)
+        order.total += Decimal(order.service_fee)
+        order.initial_total = order.total
+        
+        order.save()
+        for i in items_cart:
+            store_models.OrderItem.objects.create(
+                order=order,
+                product=i.product,
+                price=i.price,
+                qty=i.qty,
+                color=i.color,
+                size=i.size,
+                sub_total=i.sub_total,
+                shipping=i.shipping,
+                tax=tax_calculation(address.country, i.sub_total),
+                initial_total=i.total,
+            )

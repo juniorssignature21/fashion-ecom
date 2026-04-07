@@ -3,9 +3,18 @@
 -----------------------*/
 .shopping__cart__table {
   margin-bottom: 30px;
+  overflow-x: hidden;
+
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 
   table {
     width: 100%;
+    min-width: 620px;
+
 
     thead {
       border-bottom: 1px solid #f2f2f2;
@@ -60,6 +69,41 @@
           &.quantity__item {
             width: 175px;
 
+            .qty-container {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 8px;
+            }
+
+            .qty-btn {
+              width: 32px;
+              height: 32px;
+              border: 1px solid #e1e1e1;
+              background: #f8f9fa;
+              color: #666;
+              font-size: 16px;
+              cursor: pointer;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              transition: background 0.25s ease;
+            }
+
+            .qty-btn:hover {
+              background: #ececec;
+            }
+
+            .qty-input {
+              width: 55px;
+              height: 34px;
+              border: 1px solid #e1e1e1;
+              text-align: center;
+              font-size: 16px;
+              color: $heading-color;
+              padding: 0;
+            }
+
             .quantity {
 
               .pro-qty-2 {
@@ -101,6 +145,35 @@
               border-radius: 50%;
               line-height: 40px;
               text-align: center;
+            }
+          }
+
+          &.cart__actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+
+            .cart__close {
+              cursor: pointer;
+              display: inline-block;
+
+              i {
+                font-size: 16px;
+                color: $heading-color;
+                height: 35px;
+                width: 35px;
+                background: #f3f2ee;
+                border-radius: 50%;
+                line-height: 35px;
+                text-align: center;
+                transition: all 0.3s ease;
+
+                &:hover {
+                  background: $primary-color;
+                  color: $white-color;
+                }
+              }
             }
           }
         }

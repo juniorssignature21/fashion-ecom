@@ -48,6 +48,7 @@ $(document).ready(function() {
                 success: function(response) {
                     $('.total_cart_items').text(response.total_cart_items);
                     $('.price').text(`₦ ${response.cart_sub_total}`);
+                    $('.total_price').text(`₦ ${response.total_price}`);
                 }
             });
         }
@@ -60,7 +61,12 @@ $(document).ready(function() {
     $(document).on('click', '.plus', function() {
         let input = $(this).siblings('.qty-input');
         let val = parseInt(input.val());
-        input.val(val + 1);
+        let max = parseInt(input.attr('max'));
+        if (val < max) {
+            input.val(val + 1);
+        } else {
+            input.val(max);
+        }
     });
 
     // Handle Decrement
@@ -127,31 +133,14 @@ $(document).ready(function() {
     //update cart quantity
     $(document).on('click', '.update_cart_qty', function(){
         const button_el = $(this);
-        const update_type = button_el.attr('data-update-type');
+        // const update_type = button_el.attr('data-update-type');
         const item_id = button_el.attr('data-item-id');
-        let qty = parseInt($(".item-qty-" + item_id).val());
+        let qty = parseInt($("input.item-qty-" + item_id).val());
         const product_id = button_el.attr('data-product-id');
+        
         const cart_id = generateCartId();
-        const stock = parseInt($(".item-qty-" + item_id).attr('data-qty')); // Get stock from data attribute
+        const stock = parseInt($("input.item-qty-" + item_id).attr('data-qty')); // Get stock from data attribute
     
-        if (update_type === "increase") {
-            if (qty < stock) {
-                $(".item-qty-" + item_id).val(qty + 1);
-                qty++;
-            } else {
-                // button_el.html("+"); // Reset button text if exceeding stock
-                return; // Stop further execution if quantity exceeds stock
-            }
-        } else {
-            if (qty > 1) {
-                $(".item-qty-" + item_id).val(qty - 1);
-                qty--;
-                // button_el.html("-"); // Reset button text if exceeding stock
-            } else {
-                $(".item-qty-" + item_id).val(1);
-                qty = 1;
-            }
-        }
     
         // Proceed with the AJAX call if the quantity is within stock limits
         $.ajax({
@@ -162,7 +151,7 @@ $(document).ready(function() {
                 cart_id: cart_id,
             },
             beforeSend: function () {
-                button_el.html("<i class='fas fa-spinner fa-spin ms-2'></i>");
+                button_el.html("<i class='fa fa-spinner fa-spin ms-2'></i>");
             },
             success: function(response) {
                 console.log(response);
@@ -172,11 +161,10 @@ $(document).ready(function() {
                 });
                 $(".item_sub_total_" + item_id).text(response.item_sub_total);
                 $(".cart_sub_total").text(response.cart_sub_total);
-                if (update_type === "increase") {
-                    button_el.html("<i class='fa fa-plus'></i>");
-                } else {
-                    button_el.html("<i class='fa fa-minus'></i>");
-                }
+                $(".total_price").text(response.total_price);
+                button_el.html("<i class='fa fa-edit'></i>");
+                // refresh page
+                window.location.reload();
             },
             error: function(xhr, status, error) {
                 console.log("Error Status: ", xhr.status);
@@ -188,11 +176,13 @@ $(document).ready(function() {
                 });
                 // Reset quantity input and button text on error
                 $(".item-qty-" + item_id).val(stock); // Set input value to stock limit
-                if (update_type === "increase") {
-                    button_el.html("<i class='fa fa-plus'></i>");
-                } else {
-                    button_el.html("<i class='fa fa-minus'></i>");
-                }
+                $(".total_price").text(response.total_price);
+                
+                // if (update_type === "increase") {
+                //     button_el.html("<i class='fa fa-plus'></i>");
+                // } else {
+                //     button_el.html("<i class='fa fa-minus'></i>");
+                // }
             }
         });
     });
@@ -205,7 +195,7 @@ $(document).ready(function() {
         const cart_id = generateCartId();
 
         $.ajax({
-            url: "/delete_cart_item/",
+            url: "/delete-cart-item/",
             data: {
                 id: product_id,
                 item_id: item_id,
@@ -213,7 +203,7 @@ $(document).ready(function() {
             },
 
             beforeSend: function () {
-                button_el.html("<i class='fas fa-spinner fa-spin ms-2'></i>");
+                button_el.html("<i class='fa fa-spinner fa-spin ms-2'></i>");
             },
             success: function(response){
                 console.log(response)
@@ -224,7 +214,8 @@ $(document).ready(function() {
                 $(".total_cart_items").text(response?.total_cart_items);
                 $(".cart_sub_total").text(response?.cart_sub_total);
                 $(".item_div_" + item_id).addClass("d-none");
-
+                button_el.html("<i class='fa fa-close'></i>");
+                window.location.reload();
             },
         });
     });
@@ -266,5 +257,21 @@ $(document).ready(function() {
         });
 
     });
+    
+    document.querySelectorAll('.address-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const container = this.closest('.address');
+            const button_el = $(this);
+            const radio = container.querySelector('input[type="radio"]');
 
+            radio.checked = true;
+            document.querySelectorAll('.address').forEach(box => {
+                box.classList.remove('active');
+            
+            });
+            container.classList.add('active');
+            
+        });
+    });
+    
 });
