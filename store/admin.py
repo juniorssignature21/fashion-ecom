@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, ProductImage, Variant, VariantOption, Tag, Cart, Address
+from .models import Category, Product, ProductImage, Variant, VariantOption, Tag, Cart, Address, Order, OrderItem
 
 # Register your models here.
 admin.site.register(Category)
@@ -18,6 +18,18 @@ class CartAdmin(admin.ModelAdmin):
 admin.site.register(Cart, CartAdmin)
 
 class AddressAdmin(admin.ModelAdmin):
-    list_display = ['user', 'address_line1', 'address_line2', 'city', 'state', 'postal_code', 'country']
+    list_display = ['user', 'delivery_address', 'city', 'state', 'postal_code', 'country']
     
 admin.site.register(Address, AddressAdmin)
+
+# class OrderAdmin(admin.ModelAdmin):
+#     list_display = ['user', 'cart', 'address', 'total_amount', 'date']
+#     sortable_by = ['date']
+    
+admin.site.register(Order)
+
+# class OrderItemAdmin(admin.ModelAdmin):
+#     list_display = ['order', 'product', 'qty', 'price']
+#     list_filter = ['order']
+    
+admin.site.register(OrderItem)

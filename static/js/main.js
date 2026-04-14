@@ -160,42 +160,47 @@
     /*-------------------
 		Quantity change
 	--------------------- */
-    // var proQty = $('.pro-qty');
-    // proQty.prepend('<span class="fa fa-angle-up dec qtybtn"></span>');
-    // proQty.append('<span class="fa fa-angle-down inc qtybtn"></span>');
-    // proQty.on('click', '.qtybtn', function () {
-    //     var $button = $(this);
-    //     var oldValue = $button.parent().find('input').val();
-    //     if ($button.hasClass('inc')) {
-    //         var newVal = parseFloat(oldValue) + 1;
-    //     } else {
-    //         // Don't allow decrementing below zero
-    //         if (oldValue > 0) {
-    //             var newVal = parseFloat(oldValue) - 1;
-    //         } else {
-    //             newVal = 0;
-    //         }
-    //     }
-    //     $button.parent().find('input').val(newVal);
-    // });
+    var proQty = $('.pro-qty');
+    proQty.prepend('<span class="fa fa-angle-up dec qtybtn"></span>');
+    proQty.append('<span class="fa fa-angle-down inc qtybtn"></span>');
+    proQty.on('click', '.qtybtn', function () {
+        var $button = $(this);
+        var oldValue = $button.parent().find('input').val();
+        if ($button.hasClass('inc')) {
+            var newVal = parseFloat(oldValue) + 1;
+        } else {
+            // Don't allow decrementing below zero
+            if (oldValue > 0) {
+                var newVal = parseFloat(oldValue) - 1;
+            } else {
+                newVal = 0;
+            }
+        }
+        $button.parent().find('input').val(newVal);
+    });
 
     // var proQty = $('.pro-qty-2');
-    // proQty.prepend('<span class="fa fa-angle-left dec qtybtn"></span>');
-    // proQty.append('<span class="fa fa-angle-right inc qtybtn"></span>');
+    // proQty.prepend('<span class="fa fa-angle-left dec qtybtn update_cart_qty" data-item-id="{{ item.id }}"></span>');
+    // proQty.append('<span class="fa fa-angle-right inc qtybtn update_cart_qty" data-item-id="{{ item.id }}"></span>');
     // proQty.on('click', '.qtybtn', function () {
-    //     var $button = $(this);
-    //     var oldValue = $button.parent().find('input').val();
-    //     if ($button.hasClass('inc')) {
-    //         var newVal = parseFloat(oldValue) + 1;
+    //     var button = $(this);
+    //     const item_id = button.attr('data-item-id');
+    //     // var qty = button.parent().find('input').val();
+    //     let qty = parseInt($(".item-qty-" + item_id).val());
+
+    //     console.log(qty);
+
+    //     if (button.hasClass('inc')) {
+    //         var newVal = parseFloat(qty) + 1;
     //     } else {
     //         // Don't allow decrementing below zero
-    //         if (oldValue > 0) {
-    //             var newVal = parseFloat(oldValue) - 1;
+    //         if (qty > 0) {
+    //             var newVal = parseFloat(qty) - 1;
     //         } else {
     //             newVal = 0;
     //         }
     //     }
-    //     $button.parent().find('input').val(newVal);
+    //     qty = newVal;
     // });
 
     /*------------------

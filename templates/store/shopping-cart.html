@@ -3,159 +3,157 @@
 {% block content %}
 <style>
     .address{
-        width: 350px;
+        {% comment %} width: 350px; {% endcomment %}
         background: #000;
         color: #fff;
         padding: 20px;
         display: flex;
         align-items: center;
     }
-    .address button{
+    .address-btn{
         background: #e53637;
         color: #fff;
         border: none;
         border-radius: 2px;
         padding: 5px;
+        cursor: pointer;
     }
     .active{
         border: 4px solid red;
     }
 </style>
 <!-- Breadcrumb Section Begin -->
-<section class="breadcrumb-option">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="breadcrumb__text">
-                    <h4>Shopping Cart</h4>
-                    <div class="breadcrumb__links">
-                        <a href="./index.html">Home</a>
-                        <a href="./shop.html">Shop</a>
-                        <span>Shopping Cart</span>
+    <section class="breadcrumb-option">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb__text">
+                        <h4>Shopping Cart</h4>
+                        <div class="breadcrumb__links">
+                            <a href="./index.html">Home</a>
+                            <a href="./shop.html">Shop</a>
+                            <span>Shopping Cart</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
-<!-- Breadcrumb Section End -->
+    </section>
+    <!-- Breadcrumb Section End -->
 
-<!-- Shopping Cart Section Begin -->
-<section class="shopping-cart spad">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="shopping__cart__table">
-                    <div class="table-responsive">
+    <!-- Shopping Cart Section Begin -->
+    <section class="shopping-cart spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="shopping__cart__table">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Product</th>
                                     <th>Quantity</th>
                                     <th>Total</th>
-                                    <th>Actions</th>
+                                    <th></th>
                                 </tr>
                             </thead>
-                        <tbody>
-                            {% for item in items %}
-                            <tr>
-                                <td class="product__cart__item">
-                                    <div class="product__cart__item__pic">
-                                        <img src="img/shopping-cart/cart-1.jpg" alt="">
-                                    </div>
-                                    <div class="product__cart__item__text">
-                                        <h6>{{ item.product.name }}</h6>
-                                        <h5>
-                                            &#8358; {{ item.price }}
-                                        </h5>
-                                    </div>
-                                </td>
-                                <td class="quantity__item">
-                                    <!-- Quantity Selector -->
-                            <div class="qty-container">
-                                <button type="button" class="qty-btn minus">-</button>
-                                
-                                <input type="number" 
-                                    value="{{ item.qty }}" 
-                                    min="1"
-                                    max="{{ item.product.stock }}"
-                                    class="qty-input item-qty-{{ item.id }}" 
-                                    name="qty" 
-                                    style="width: 50px; text-align: center;"
-                                    data-qty="{{ item.product.stock }}"
-                                    readonly>
-                                    
-                                <button type="button" class="qty-btn plus">+</button>
-                            </div>
-                                </td>
-                                <td class="cart__price">&#8358; {{ item.sub_total }}</td>
-                                <td class="cart__actions">
-                                    <span class="cart__close update_cart_qty" data-item-id="{{ item.id }}" data-product-id="{{ item.product.id }}" title="Update quantity">
-                                        <i class="fa fa-edit"></i>
-                                    </span>
-                                    <span class="cart__close delete_cart_item" data-item-id="{{ item.id }}" data-product-id="{{ item.product.id }}" title="Remove item">
-                                        <i class="fa fa-close"></i>
-                                    </span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            
-                        </tbody>
+                            <tbody>
+                                {% for item in items %}
+
+                                <tr>
+                                    <td class="product__cart__item">
+                                        <div class="product__cart__item__pic">
+                                            <img src="{{ item.product.image }}" alt="" width="100">
+                                        </div>
+                                        <div class="product__cart__item__text">
+                                            <h6>{{ item.product.name|truncatechars:20 }}</h6>
+                                            <h5>
+                                                &#8358; {{ item.price }}
+                                            </h5>
+                                            <i class="fa fa-trash"></i>
+                                        </div>
+                                    </td>
+                                    <td class="quantity__item">
+                                        <div class="quantity">
+                                            <div class="pro-qty-2">
+                                                <span class="fa fa-angle-left dec qtybtn" data-item-id="{{ item.id }}" data-product-id="{{ item.product.id }}"></span>
+                                                <input type="number"
+                                                value="{{ item.qty }}"
+                                                class="qty-input item-qty-{{ item.id }}"
+                                                data-qty="{{ item.product.stock }}"
+                                                name="qty"
+                                                min="1"
+                                                max="{{ item.product.stock }}"
+                                                readonly
+                                                >
+                                                <span class="fa fa-angle-right inc qtybtn" data-item-id="{{ item.id }}" data-product-id="{{ item.product.id }}"></span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="cart__price">
+                                        &#8358; {{ item.sub_total }}
+                                    </td>
+                                    {% comment %} <td class="cart__close"></td> {% endcomment %}
+                                    {% comment %} <td class="cart__close"><i class="fa fa-edit"></i></td> {% endcomment %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
                         </table>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6">
-                        <div class="continue__btn">
-                            <a href="{% url "store:shop" %}">Continue Shopping</a>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="continue__btn">
+                                <a href="#">Continue Shopping</a>
+                            </div>
                         </div>
+                        
                     </div>
-
                 </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="cart__discount">
-                    <h6>Discount codes</h6>
-                    <form action="#">
-                        <input type="text" placeholder="Coupon code">
-                        <button type="submit">Apply</button>
-                    </form>
-                </div>
-                <div class="cart__total">
-                    <h6>Cart total</h6>
-                    <ul>
-                        <li>Subtotal <span class="price">{{ cart_sub_total }}</span></li>
-                        <li>Total <span>$ {{ cart_total }}</span></li>
-                    </ul>
-                    <a href="#" class="primary-btn">Proceed to checkout</a>
+                <div class="col-lg-4">
+                    <div class="cart__discount">
+                        <h6>Discount codes</h6>
+                        <form action="#">
+                            <input type="text" placeholder="Coupon code">
+                            <button type="submit">Apply</button>
+                        </form>
+                    </div>
+                    <div class="cart__total">
+                        <h6>Cart total</h6>
+                        <ul>
+                            <li>Subtotal <span class="price">{{ cart_sub_total }}</span></li>
+                            <li>Total <span>&#8358; {{ total }}</span></li>
+                        </ul>
+                        <form action="{% url "store:create_order" %}" method="POST">
+                            {% csrf_token %}
+                        <h5>
+                            Address: 
+                        </h5>
+                        
+                            {% if addresses %}
+                            {% for address in addresses %}
+                            <div class="address">
+                                <input type="radio"  name="address"
+                                hidden
+                                class="address-input" value="{{address.id}}">
+                                
+                                <span>
+                                {{ address.address_line1 }}, {{ address.city }}, {{ address.state }}, {{ address.postal_code }}, {{ address.country }}  
+                                </span>
+                                <span class="address-btn" address-id="{{ address.id }}">
+                                    Use
+                                </span>
+                            </div>
+                            <br><br>
+                            {% endfor %}
+                            {% else %}
+                                <span>No address found</span>
+                            {% endif %}
+                        
+                        <button class="primary-btn" type="submit">Proceed to checkout</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-        <h5>
-            &nbsp;&nbsp; Address:
-        </h5>
-        <br>
-        
-        {% for address in addresses %}
-        <div class="address">
-            <input type="radio"  name="address"
-            hidden
-            class="address-input" value="{{address.id}}">
-            
-            <span>
-            {{ address.address_line1 }}, {{ address.city }}, {{ address.state }}, {{ address.postal_code }}, {{ address.country }}  
-            </span>
-            <button class="address-btn" address-id="{{ address.id }}">
-                Use
-            </button>
-        </div>
-        <br><br>
-        {% endfor %}
-    </div>
-</section>
-<script>
-    document.getEl
-</script>
-<!-- Shopping Cart Section End -->
+    </section>
+    <!-- Shopping Cart Section End -->
 {% endblock content %}
-

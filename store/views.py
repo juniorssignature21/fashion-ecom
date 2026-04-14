@@ -13,6 +13,7 @@ import random
 from django.http import JsonResponse
 
 from .models import Cart # Assuming your model name
+from store.forms import AddressForm
 
 from plugins.tax_calculator import tax_calculation
 from plugins.service_fee import calculate_service_fee
@@ -145,6 +146,7 @@ def cart(request):
         
     items = store_models.Cart.objects.filter(Q(cart_id=cart_id) | Q(user=request.user) if request.user.is_authenticated else  Q(cart_id=cart_id))
     cart_sub_total = store_models.Cart.objects.filter(Q(cart_id=cart_id) | Q(user=request.user) if request.user.is_authenticated else  Q(cart_id=cart_id)).aggregate(sub_total = Sum("sub_total"))["sub_total"]
+    total = store_models.Cart.objects.filter(Q(cart_id=cart_id) | Q(user=request.user) if request.user.is_authenticated else  Q(cart_id=cart_id)).aggregate(total = Sum("total"))["total"]
     
     try:
         addresses = store_models.Address.objects.filter(user=request.user)
@@ -159,6 +161,7 @@ def cart(request):
      "items":items,
      "addresses":addresses,   
      "cart_sub_total":f"{cart_sub_total:,.2f}" if cart_sub_total else "0.00",   
+     "total":f"{total:,.2f}" if total else "0.00"
     }
     return render(request, "store/shopping-cart.html", context)
 
@@ -235,3 +238,33 @@ def CreateOrder(request):
                 tax=tax_calculation(address.country, i.sub_total),
                 initial_total=i.total,
             )
+            order.vendors.add(i.product.vendor)
+    
+    return redirect("store:checkout", order.order_id)
+        
+def checkout(request, id):
+    order = store_models.Order.objects.get(order_id=id)
+    order_items = store_models.OrderItem.objects.filter(order=order)
+    address = store_models.Address.objects.get(id=order.address.id)
+    context = {
+        "order":order,
+        "order_items":order_items,
+        "address":address
+    }
+    return render(request, "store/checkout.html", context)
+        
+# =============== Add Address View ================
+def AddAddress(request):
+    form = AddressForm()
+    if request.method == "POST":
+        form = AddressForm(request.POST)
+        if form.is_valid():
+            address = form.save(commit=False)
+            address.user = request.user
+            address.save()
+            messages.success(request, "Address added successfully")
+            return redirect("store:cart")
+    context = {
+        "form":form
+    }
+    return render(request, "store/add_address.html", context)

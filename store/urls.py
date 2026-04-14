@@ -13,5 +13,8 @@ urlpatterns = [
     path('cart/', store_views.cart, name="cart"),
     path('delete-cart-item/', store_views.delete_cart_item, name="delete-cart-item"),
     path('get-cart-count/', store_views.get_cart_count, name='get_cart_count'),
+    path('create-order/', store_views.CreateOrder, name="create_order"),
+    path('checkout/<int:id>/', store_views.checkout, name="checkout"),
+    
 
 ]

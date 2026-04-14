@@ -131,7 +131,7 @@ $(document).ready(function() {
     });
 
     //update cart quantity
-    $(document).on('click', '.update_cart_qty', function(){
+    $(document).on('click', '.qtybtn', function(){
         const button_el = $(this);
         // const update_type = button_el.attr('data-update-type');
         const item_id = button_el.attr('data-item-id');
@@ -140,8 +140,21 @@ $(document).ready(function() {
         
         const cart_id = generateCartId();
         const stock = parseInt($("input.item-qty-" + item_id).attr('data-qty')); // Get stock from data attribute
-    
-    
+        
+        if (button_el.hasClass('inc')) {
+            var newVal = parseInt(qty) + 1;
+
+        } else {
+            // Don't allow decrementing below zero
+            if (qty > 0) {
+                var newVal = parseInt(qty) - 1;
+            } else {
+                newVal = 0;
+            }
+        }
+
+        qty = parseInt(newVal);
+
         // Proceed with the AJAX call if the quantity is within stock limits
         $.ajax({
             url: "/add-to-cart/",
@@ -150,21 +163,25 @@ $(document).ready(function() {
                 qty: qty,
                 cart_id: cart_id,
             },
-            beforeSend: function () {
-                button_el.html("<i class='fa fa-spinner fa-spin ms-2'></i>");
-            },
+            // beforeSend: function () {
+            //     button_el.html("<i class='fa fa-spinner fa-spin ms-2'></i>");
+            // },
             success: function(response) {
                 console.log(response);
                 Toast.fire({
                     icon: "success",
                     title: response?.message,
                 });
+
+                setTimeout(() => {
+                    location.reload();
+                }, 1500); // adjust time to match toast duration
+
                 $(".item_sub_total_" + item_id).text(response.item_sub_total);
                 $(".cart_sub_total").text(response.cart_sub_total);
                 $(".total_price").text(response.total_price);
-                button_el.html("<i class='fa fa-edit'></i>");
+                // button_el.html("<i class='fa fa-edit'></i>");
                 // refresh page
-                window.location.reload();
             },
             error: function(xhr, status, error) {
                 console.log("Error Status: ", xhr.status);
@@ -185,6 +202,9 @@ $(document).ready(function() {
                 // }
             }
         });
+
+        // window.location.reload();
+
     });
     
     //delete item from cart

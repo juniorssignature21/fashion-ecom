@@ -22,6 +22,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
+    phone_number = models.CharField(max_length=25, default="")
     profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
     role = models.CharField(max_length=20, choices=[('customer', 'Customer'), ('admin', 'Admin'), ('vendor', 'Vendor')], default='customer')
     

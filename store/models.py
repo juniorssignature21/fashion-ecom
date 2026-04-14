@@ -56,6 +56,7 @@ class Category(models.Model):
         verbose_name_plural = "Categories"
     
 class Product(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='products')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     name = models.CharField(max_length=100)
     description = models.TextField()
@@ -154,15 +155,22 @@ class Cart(models.Model):
     
 class Address(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    address_line1 = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=30, default="")
+    last_name = models.CharField(max_length=30, default="")
+    delivery_address = models.CharField(max_length=255)
     address_line2 = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=20)
     country = models.CharField(max_length=100)
+    phone = models.CharField(max_length=25, default="")
+    email = models.EmailField(default="")  # Add email field to store user's email address
+    set_as_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateField(default=timezone.now)
     
     def __str__(self):
-        return f"{self.address_line1}, {self.city}, {self.state}, {self.country}"
+        return f"{self.delivery_address}, {self.city}, {self.state}, {self.country}"
     
     class Meta:
         verbose_name_plural = "Addresses"

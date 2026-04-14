@@ -474,22 +474,6 @@
       margin-right: 0;
     }
   
-    .shopping__cart__table table tbody tr td.product__cart__item {
-      width: 300px;
-    }
-  
-    .shopping__cart__table table tbody tr td.quantity__item {
-      width: 120px;
-    }
-  
-    .shopping__cart__table table tbody tr td.cart__price {
-      width: 100px;
-    }
-  
-    .shopping__cart__table table tbody tr td.cart__actions {
-      width: 120px;
-    }
-  
     .continue__btn {
       text-align: center;
     }
@@ -545,133 +529,10 @@
     }
   }
   
-  @media only screen and (max-width: 767px) {
-    .shopping__cart__table {
-      overflow-x: auto;
-    }
-
-    .shopping__cart__table .table-responsive {
-      overflow-x: auto;
-    }
-
-    .shopping__cart__table table {
-      min-width: 520px;
-    }
-
-    .shopping__cart__table table tbody tr td.product__cart__item {
-      width: 220px;
-    }
-
-    .shopping__cart__table table tbody tr td.quantity__item {
-      width: 120px;
-    }
-
-    .shopping__cart__table table tbody tr td.cart__price {
-      width: 90px;
-    }
-
-    .shopping__cart__table table tbody tr td.cart__actions {
-      width: 100px;
-      padding: 24px 5px;
-    }
-
-    .qty-container {
-      gap: 6px;
-    }
-  }
-  
   /* Small Device = 320px */
   @media only screen and (max-width: 479px) {
     .cart__total {
       padding: 35px 30px 40px;
-    }
-  
-    .shopping__cart__table {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-  
-    .shopping__cart__table table {
-      min-width: 500px; /* Reduce horizontal width for small screens */
-    }
-
-    .shopping__cart__table table tbody tr td.product__cart__item {
-      width: 220px;
-    }
-
-    .shopping__cart__table table tbody tr td.quantity__item {
-      width: 90px;
-    }
-
-    .shopping__cart__table table tbody tr td.cart__price {
-      width: 70px;
-    }
-
-    .shopping__cart__table table tbody tr td.cart__actions {
-      width: 80px;
-      padding: 20px 5px;
-    }
-
-    .qty-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-    }
-
-    .qty-btn {
-      width: 28px;
-      height: 28px;
-      border: 1px solid #e1e1e1;
-      background: #f8f9fa;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: #666;
-
-      &:hover {
-        background: #e9ecef;
-      }
-    }
-
-    .qty-btn.plus {
-      order: 1;
-    }
-
-    .qty-input {
-      width: 42px !important;
-      height: 32px;
-      text-align: center;
-      border: 1px solid #e1e1e1;
-      border-left: none;
-      border-right: none;
-      order: 2;
-    }
-
-    .qty-btn.minus {
-      order: 3;
-    }
-
-    /* Address section responsiveness */
-    .address {
-      width: 100% !important;
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 15px;
-    }
-  
-    .address span {
-      margin-bottom: 10px;
-      word-break: break-word;
-    }
-  
-    .address button {
-      align-self: flex-end;
-      padding: 8px 15px;
-      font-size: 14px;
     }
   
     .hero__items {
