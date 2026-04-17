@@ -1,0 +1,119 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block content %}
+
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-option">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb__text">
+                        <h4>Order Detail</h4>
+                        <div class="breadcrumb__links">
+                            <a href="./index.html">Home</a>
+                            <a href="./shop.html">Shop</a>
+                            <span>Order Detail</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb Section End -->
+
+    <!-- Order Detail Section Begin -->
+    <section class="order-detail spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <!-- Order Summary Card -->
+                    <div class="order-detail__card">
+                        <div class="order-detail__header">
+                            <h3>Order Summary</h3>
+                        </div>
+                        <div class="order-detail__content">
+                            <div class="order-detail__grid">
+                                <div class="order-detail__item">
+                                    <span class="order-detail__label">Order ID:</span>
+                                    <span class="order-detail__value">{{ order.order_id }}</span>
+                                </div>
+                                <div class="order-detail__item">
+                                    <span class="order-detail__label">Order Date:</span>
+                                    <span class="order-detail__value">{{ order.date }}</span>
+                                </div>
+                                <div class="order-detail__item">
+                                    <span class="order-detail__label">Total Amount:</span>
+                                    <span class="order-detail__value amount">&#8358; {{ order.total }}</span>
+                                </div>
+                                <div class="order-detail__item">
+                                    <span class="order-detail__label">Payment Status:</span>
+                                    <span class="order-detail__value status">{{ order.payment_status }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Information Card -->
+                    <div class="order-detail__card">
+                        <div class="order-detail__header">
+                            <h3>Shipping Information</h3>
+                        </div>
+                        <div class="order-detail__content">
+                            <div class="order-detail__grid">
+                                <div class="order-detail__item">
+                                    <span class="order-detail__label">Full Name:</span>
+                                    <span class="order-detail__value">{{ order.address.first_name }} {{ order.address.last_name }}</span>
+                                </div>
+                                <div class="order-detail__item">
+                                    <span class="order-detail__label">Email:</span>
+                                    <span class="order-detail__value">{{ order.address.email }}</span>
+                                </div>
+                                <div class="order-detail__item">
+                                    <span class="order-detail__label">Phone:</span>
+                                    <span class="order-detail__value">{{ order.address.phone }}</span>
+                                </div>
+                                <div class="order-detail__item full-width">
+                                    <span class="order-detail__label">Address:</span>
+                                    <span class="order-detail__value">{{ order.address.delivery_address }}, {{ order.address.city }}, {{ order.address.state }}, {{ order.address.postal_code }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Items Table -->
+                    <div class="order-detail__table">
+                        <div class="order-detail__header">
+                            <h3>Order Items</h3>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order_items %}
+                                <tr>
+                                    <td class="order-item__product">{{ item.product.name }}</td>
+                                    <td class="order-item__qty">{{ item.qty }}</td>
+                                    <td class="order-item__price">&#8358; {{ item.price }}</td>
+                                    <td class="order-item__total">&#8358; {{ item.qty|add:"x"|add:item.price }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if order.payment_status != "Paid" %}
+                        <a href="{% url "store:checkout" order.order_id %}" class="btn btn-primary">Checkout</a>
+                    {% else %}
+                        <span class="payment-success">Payment Successful</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Order Detail Section End -->
+{% endblock content %}

@@ -15,6 +15,13 @@ urlpatterns = [
     path('get-cart-count/', store_views.get_cart_count, name='get_cart_count'),
     path('create-order/', store_views.CreateOrder, name="create_order"),
     path('checkout/<int:id>/', store_views.checkout, name="checkout"),
+    path('orders/', store_views.AllOrders, name="orders"),
+    path('order-detail/<str:order_id>/', store_views.OrderDetail, name="order_detail"),
+    # ================ Address Urls
+    path('add-address/', store_views.AddAddress, name="add_address"),
     
+    # checkout urls
+    path('flutterwave-payment/<str:order_id>/', store_views.FlutterWavePayment, name="flutterwave_payment"),
+    path('verify-payment/<str:order_id>/', store_views.PaymentCallback, name="payment_callback"),   
 
 ]

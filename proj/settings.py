@@ -12,8 +12,16 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
+try:
+    from dotenv import load_dotenv
+    DOTENV_AVAILABLE = True
+except ImportError:
+    DOTENV_AVAILABLE = False
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(os.path.join(BASE_DIR, '.env')) if DOTENV_AVAILABLE else None
 
 
 # Quick-start development settings - unsuitable for production
@@ -132,3 +140,12 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR / 'media')
 
 SECURE_SSL_REDIRECT = False  # Set to False to avoid forced HTTPS redirection
+
+EMAIL_BACKEND=os.getenv('EMAIL_BACKEND')
+EMAIL_HOST=os.getenv('EMAIL_HOST')
+EMAIL_PORT=os.getenv('EMAIL_PORT', 587)
+EMAIL_USE_TLS=os.getenv('EMAIL_USE_TLS', True)
+EMAIL_HOST_USER=os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD=os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL=os.getenv('DEFAULT_FROM_EMAIL')
+FLUTTERWAVE_SECRET_KEY=os.getenv('FLUTTERWAVE_SECRET_KEY')

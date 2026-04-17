@@ -4,13 +4,19 @@ from pyexpat.errors import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from store import models as store_models
+from accounts import models as accounts_models
 from django.db.models import Q, Sum
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
+from django.conf import settings
+import uuid
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 import random
 # Create your views here.
 from django.http import JsonResponse
+import requests
 
 from .models import Cart # Assuming your model name
 from store.forms import AddressForm
@@ -241,7 +247,8 @@ def CreateOrder(request):
             order.vendors.add(i.product.vendor)
     
     return redirect("store:checkout", order.order_id)
-        
+
+@login_required(login_url='accounts:login')
 def checkout(request, id):
     order = store_models.Order.objects.get(order_id=id)
     order_items = store_models.OrderItem.objects.filter(order=order)
@@ -254,7 +261,10 @@ def checkout(request, id):
     return render(request, "store/checkout.html", context)
         
 # =============== Add Address View ================
+@login_required(login_url='accounts:login')
 def AddAddress(request):
+    # get the current url to redirect back to the same page after adding address
+    request.session['next'] = request.GET.get("next", request.META.get('HTTP_REFERER', '/'))
     form = AddressForm()
     if request.method == "POST":
         form = AddressForm(request.POST)
@@ -263,8 +273,120 @@ def AddAddress(request):
             address.user = request.user
             address.save()
             messages.success(request, "Address added successfully")
+            
+            next_url = request.GET.get("next")
+            if next_url:
+                return redirect(next_url)
             return redirect("store:cart")
     context = {
         "form":form
     }
     return render(request, "store/add_address.html", context)
+
+@login_required(login_url='accounts:login')
+def FlutterWavePayment(request, order_id):
+    try:
+        order = store_models.Order.objects.get(order_id=order_id)
+        
+        tx_ref = str(uuid.uuid4())
+        
+        url = "https://api.flutterwave.com/v3/payments"
+        
+        headers = {
+            "Authorization": f"Bearer {settings.FLUTTERWAVE_SECRET_KEY}",
+            "Content-Type": "application/json",
+        }
+        
+        payload = {
+            "tx_ref": tx_ref,
+            "amount": str(order.total),
+            "currency": "NGN",
+            "redirect_url": f"http://127.0.0.1:8000/verify-payment/{order_id}",
+            "customer":{
+                'email': request.user.email,
+                'name': request.user.username,
+            },
+            'customizations':{
+                "title": f"Payment for Order with ID {order_id}"
+            }
+        }
+        
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        result = response.json()
+        if result.get('status') == 'success':
+            payment_link = result['data']['link']
+            print(payment_link)
+            return redirect(payment_link)
+        else:
+            return render(request, 'store/checkout.html', {'error': result.get('message', 'Payment initiation failed.')})
+    except Exception as e:
+        messages.error(request, f"An error occurred: {str(e)}")
+        return render(request, 'store/checkout.html', {'error': 'An unexpected error occurred. Please try again later.'})
+         
+@login_required(login_url='accounts:login')
+def PaymentCallback(request, order_id):
+    status = request.GET.get('status')
+    
+    profile = accounts_models.Profile.objects.get(user=request.user)
+    order = store_models.Order.objects.get(order_id=order_id)
+    transaction_id = request.GET.get('transaction_id')
+    
+    print(f"Payment status: {status}, Transaction ID: {transaction_id}")
+    # subtract order item qty from product qty from the database if payment is successful
+    items = store_models.OrderItem.objects.filter(order=order)    
+    
+    if transaction_id and order.payment_status == "Processing":
+        if status in ['successful', 'completed']:
+            order.payment_status = 'Paid'
+            order.payment_method = 'Flutterwave'
+            order.payment_id = transaction_id
+            order.save()
+            for item in items:
+                product = store_models.Product.objects.get(id=item.product.id)
+                product.stock -= item.qty
+                product.save()
+            
+            # html_message = render_to_string(
+            #     'email/order_confirmation.html',
+            #     {'order': order, 'items': items}
+            # )
+            # plain_message = strip_tags(html_message)
+            # send_mail(
+            #     subject='Order Confirmation',
+            #     message=plain_message,
+            #     from_email=settings.DEFAULT_FROM_EMAIL,
+            #     recipient_list=[request.user.email],
+            #     html_message=html_message
+            # )
+            # clear the cart after successful payment
+            if "cart_id" in request.session:
+                cart_id = request.session["cart_id"]
+                store_models.Cart.objects.filter(Q(cart_id=cart_id) | Q(user=request.user)).delete()
+                del request.session["cart_id"]
+                
+            messages.success(request, "Payment successful. Your order has been placed.")
+            return redirect("store:home")
+    
+    order.payment_status = 'Failed'
+    order.save()
+    messages.error(request, "Payment failed. Please try again.")
+    return redirect("store:checkout", order_id)
+
+@login_required(login_url='accounts:login')
+def AllOrders(request):
+    orders = store_models.Order.objects.filter(customer=request.user)
+    context = {
+        "orders":orders
+    }
+    return render(request, "store/all_orders.html", context)
+
+@login_required(login_url='accounts:login')
+def OrderDetail(request, order_id):
+    order = store_models.Order.objects.get(order_id=order_id)
+    order_items = store_models.OrderItem.objects.filter(order=order)
+    context = {
+        "order":order,
+        "order_items":order_items
+    }
+    return render(request, "store/order_detail.html", context)

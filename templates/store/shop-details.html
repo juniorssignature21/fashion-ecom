@@ -84,16 +84,16 @@ Product Details
                             {% for variant in variants %}
                             <div class="product__details__option__{{variant.name.lower}}">
                                 <span>{{ variant.name }}:</span>
-                                {% if variant.name.lower == "color" %}
-                                {% for item in variant.items %}
-                                <label for="sp-{{ item.id }}" style="background: {{ item.name.lower }};">
-                                    <input type="radio" id="sp-{{ item.id }}" name="color" value="{{ item.name }}">
-                                </label>
-                                {% endfor %}
-                                {% elif variant.name.lower == "size" %}
+                                {% if variant.name.lower == "size" %}
                                 {% for item in variant.items %}
                                 <label for="{{ item.name }}">{{ item.name }}
                                     <input type="radio" id="{{ item.name }}" name="size" value="{{ item.name }}">
+                                </label>
+                                {% endfor %}
+                                {% elif variant.name.lower == "color" %}
+                                {% for item in variant.items %}
+                                <label class="c-{{ item.id }}" for="sp-{{ item.id }}" style="background: {{ item.name.lower }};">
+                                    <input type="radio" id="sp-{{ item.id }}" name="color" value="{{ item.name }}">
                                 </label>
                                 {% endfor %}
                                 {% endif %}

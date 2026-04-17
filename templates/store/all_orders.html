@@ -1,0 +1,74 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block content %}
+
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-option">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb__text">
+                        <h4>All Orders</h4>
+                        <div class="breadcrumb__links">
+                            <a href="./index.html">Home</a>
+                            <a href="./shop.html">Shop</a>
+                            <span>All Orders</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb Section End -->
+
+    <!-- All Orders Section Begin -->
+    <section class="all-orders spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="all-orders__content">
+                        {% if orders %}
+                        <div class="all-orders__table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Order Date</th>
+                                        <th>Total Amount</th>
+                                        <th>Payment Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                    <tr>
+                                        <td class="order-id">#{{ order.order_id }}</td>
+                                        <td class="order-date">{{ order.date|date:"M d, Y" }}</td>
+                                        <td class="order-amount">&#8358; {{ order.total }}</td>
+                                        <td class="order-status">
+                                            <span class="status-badge status-{{ order.payment_status|lower }}">
+                                                {{ order.payment_status }}
+                                            </span>
+                                        </td>
+                                        <td class="order-action">
+                                            <a href="{% url 'store:order_detail' order.order_id %}" class="order-detail-btn">
+                                                View Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="all-orders__empty">
+                            <p>You have no orders yet. <a href="{% url 'store:shop' %}">Start shopping</a></p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- All Orders Section End -->
+{% endblock content %}

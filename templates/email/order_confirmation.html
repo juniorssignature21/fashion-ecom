@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+</head>
+<body>
+    <h1>Thank you for your order, {{ order.first_name }}!</h1>
+    <p>Your order has been received and is being processed. Here are the details of your order:</p>
+    <h2>Order Summary</h2>
+    <ul>
+        <li><strong>Order ID:</strong> {{ order.id }}</li>
+        <li><strong>Order Date:</strong> {{ order.created_at }}</li>
+        <li><strong>Total Amount:</strong> &#8358; {{ order.total_amount }}</li>
+    </ul>
+    <h2>Shipping Information</h2>
+    <ul>
+        <li><strong>Name:</strong> {{ order.first_name }} {{ order.last_name }}</li>
+        <li><strong>Email:</strong> {{ order.email }}</li>
+        <li><strong>Phone:</strong> {{ order.phone }}</li>
+        <li><strong>Address:</strong> {{ order.address }}, {{ order.city }}, {{ order.state }}, {{ order.zip_code }}</li>
+    </ul>
+    <h2>Order Items</h2>
+    <ul>
+        {% for item in items %}
+        <li>
+            <strong>{{ item.product.name }}</strong> - Quantity: {{ item.qty }}, Price: &#8358; {{ item.price }}
+        </li>
+        {% endfor %}
+    </ul>
+    <p>If you have any questions about your order, please contact our customer support team.</p>
+    <p>Thank you for shopping with us!</p>
+    
+</body>
+</html>
